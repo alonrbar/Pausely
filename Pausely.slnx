@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pausely.Core/Pausely.Core.csproj" />
+    <Project Path="src/Pausely/Pausely.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pausely.Core.Tests/Pausely.Core.Tests.csproj" />
+  </Folder>
+</Solution>

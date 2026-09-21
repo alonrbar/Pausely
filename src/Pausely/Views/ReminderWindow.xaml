@@ -1,0 +1,9 @@
+<Window Style="{StaticResource {x:Type Window}}" x:Class="Pausely.Views.ReminderWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · A little pause" Width="400" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" ShowActivated="False">
+  <Border Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="18" Padding="23" Margin="8">
+    <StackPanel>
+      <Grid><TextBlock Text="Ⅱ  PAUSELY" FontSize="12" Foreground="{StaticResource Accent}" FontWeight="Bold" VerticalAlignment="Center"/><Button Content="×" Click="Dismiss_Click" HorizontalAlignment="Right" Padding="8,2" AutomationProperties.Name="Dismiss reminder"/></Grid>
+      <TextBlock x:Name="Message" FontSize="23" FontWeight="SemiBold" Margin="0,12,0,7"/>
+      <TextBlock Text="Find a stopping point. Your screen will lock soon." Foreground="{StaticResource Muted}" FontSize="13"/>
+    </StackPanel>
+  </Border>
+</Window>

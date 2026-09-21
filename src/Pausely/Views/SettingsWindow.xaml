@@ -1,0 +1,41 @@
+<Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Settings" Width="530" Height="780" MinWidth="460" MinHeight="520" WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="28">
+    <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+      <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel><TextBlock Text="Make room for you." FontSize="27" FontWeight="SemiBold"/><TextBlock Text="A rhythm that fits the way you work." Foreground="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel>
+      <Button Grid.Column="1" Content="×" Style="{StaticResource WindowControl}" VerticalAlignment="Top" Click="Cancel_Click" ToolTip="Close settings" AutomationProperties.Name="Close settings without saving" />
+    </Grid>
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+      <TextBlock x:Name="ValidationText" Foreground="#A34332" Margin="0,0,0,10" AutomationProperties.LiveSetting="Polite" />
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Button Content="Defaults" Click="Defaults_Click" HorizontalAlignment="Left"/><Button Grid.Column="1" Content="Cancel" IsCancel="True" Click="Cancel_Click"/><Button Grid.Column="3" Content="Save settings" IsDefault="True" Style="{StaticResource Primary}" Click="Save_Click"/></Grid>
+    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+      <StackPanel>
+        <Border Style="{StaticResource Card}"><StackPanel>
+          <TextBlock Text="YOUR TIMING" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,14"/>
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Label Content="Focus (minutes)" Target="{Binding ElementName=FocusInput}" VerticalAlignment="Center"/><TextBox x:Name="FocusInput" Grid.Column="1" Margin="0,0,0,10" AutomationProperties.Name="Focus minutes"/>
+            <Label Grid.Row="1" Content="Break (minutes)" Target="{Binding ElementName=BreakInput}" VerticalAlignment="Center"/><TextBox x:Name="BreakInput" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" AutomationProperties.Name="Break minutes"/>
+            <Label Grid.Row="2" Content="Remind before (seconds)" Target="{Binding ElementName=WarningInput}" VerticalAlignment="Center"/><TextBox x:Name="WarningInput" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10" AutomationProperties.Name="Reminder lead seconds"/>
+            <Label Grid.Row="3" Content="Show reminder (seconds)" Target="{Binding ElementName=DurationInput}" VerticalAlignment="Center"/><TextBox x:Name="DurationInput" Grid.Row="3" Grid.Column="1" AutomationProperties.Name="Reminder display seconds"/>
+          </Grid>
+          <TextBlock Text="Decimals are welcome. Set reminder lead time to 0 to turn it off." Style="{StaticResource Caption}" Margin="0,12,0,0"/>
+        </StackPanel></Border>
+        <Border Style="{StaticResource Card}" Margin="0,14,0,0"><StackPanel>
+          <TextBlock Text="A FRIENDLY NUDGE" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold"/>
+          <Label Content="Reminder message" Target="{Binding ElementName=ReminderInput}" Margin="0,10,0,3"/><TextBox x:Name="ReminderInput" MaxLength="160" TextWrapping="Wrap" AutomationProperties.Name="Reminder message"/>
+          <TextBlock Text="Use {time} for the time left, e.g. “one minute”." Style="{StaticResource Caption}" Margin="0,6,0,8"/>
+          <Label Content="Early-unlock message" Target="{Binding ElementName=BreakMessageInput}" Margin="0,0,0,3"/><TextBox x:Name="BreakMessageInput" MaxLength="160" TextWrapping="Wrap" AutomationProperties.Name="Early unlock message"/>
+          <Button Content="Preview reminder" HorizontalAlignment="Left" Margin="0,12,0,0" Click="Preview_Click"/>
+        </StackPanel></Border>
+        <Border Style="{StaticResource Card}" Margin="0,14,0,0"><StackPanel>
+          <TextBlock Text="EVERYDAY DETAILS" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <CheckBox x:Name="AutoStartInput" Content="Start focusing when Pausely opens"/>
+          <CheckBox x:Name="StartupInput" Content="Launch in the tray when I sign in to Windows"/>
+          <CheckBox x:Name="SoundInput" Content="Play a gentle system sound with reminders"/>
+          <TextBlock Text="New timing applies to the next interval. Your current countdown stays intact." Style="{StaticResource Caption}" Margin="0,10,0,0"/>
+        </StackPanel></Border>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

@@ -1,0 +1,13 @@
+<Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.BreakWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Break not over yet" Width="460" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="True">
+  <WindowChrome.WindowChrome><WindowChrome CaptionHeight="96" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="16" UseAeroCaptionButtons="False" NonClientFrameEdges="None" /></WindowChrome.WindowChrome>
+  <StackPanel Margin="32">
+    <Border Background="#E7EEDF" CornerRadius="28" Width="64" Height="64" HorizontalAlignment="Left"><TextBlock Text="Ⅱ" FontSize="34" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+    <TextBlock x:Name="Message" Text="Break not over yet" FontSize="29" FontWeight="SemiBold" Margin="0,22,0,10"/>
+    <TextBlock Text="Give yourself a little more room to recharge. Your next focus session can wait." Foreground="{StaticResource Muted}" FontSize="15"/>
+    <TextBlock x:Name="Countdown" Text="04:32" FontSize="54" FontWeight="Light" Margin="0,20,0,0"/>
+    <TextBlock Text="remaining in your break" Style="{StaticResource Caption}"/>
+    <TextBlock x:Name="ErrorText" Foreground="#A34332" Margin="0,8,0,0" />
+    <Grid Margin="0,25,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions><Button Content="Lock again" Style="{StaticResource Primary}" Click="Lock_Click"/><Button Grid.Column="2" Content="Override" Click="Override_Click"/></Grid>
+    <TextBlock Text="Override ends this break and starts a fresh focus session." Style="{StaticResource Caption}" Margin="0,14,0,0" TextAlignment="Center"/>
+  </StackPanel>
+</Window>

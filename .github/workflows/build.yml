@@ -1,0 +1,29 @@
+name: Build and verify
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build and test timer
+        shell: pwsh
+        run: |
+          dotnet build Pausely.slnx -c Release --configfile NuGet.Config
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet tests/Pausely.Core.Tests/bin/Release/net10.0/Pausely.Core.Tests.dll
+          exit $LASTEXITCODE
+      - name: Publish portable Windows app
+        shell: pwsh
+        run: ./scripts/Publish.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pausely-win-x64
+          path: artifacts/Pausely-win-x64.zip
