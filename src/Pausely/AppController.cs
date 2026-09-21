@@ -25,6 +25,7 @@ public sealed class AppController : IDisposable
     private BreakWindow? _break;
     private bool _suspended;
     private int _syncTicks;
+    private long _lastIntervalId;
     public FocusTimer Timer { get; }
     public bool IsExiting { get; private set; }
 
@@ -44,8 +45,12 @@ public sealed class AppController : IDisposable
             using var resource = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/Pausely.ico"))!.Stream;
             _icon = new Icon(resource, Forms.SystemInformation.SmallIconSize);
             _tray = new Forms.NotifyIcon { Icon = _icon, Text = "Pausely · Ready when you are", Visible = true };
-            _tray.DoubleClick += (_, _) => ShowMain();
             _tray.ContextMenuStrip = BuildTrayMenu();
+            _tray.MouseClick += (_, e) =>
+            {
+                if (e.Button == Forms.MouseButtons.Left && _tray.ContextMenuStrip is TrayContextMenu menu)
+                    menu.ShowFromTray();
+            };
         }
         Timer.LockRequested += RequestLock;
         Timer.ReminderRequested += OnReminder;
@@ -135,6 +140,11 @@ public sealed class AppController : IDisposable
     private void Refresh()
     {
         if (IsExiting) return;
+        if (_lastIntervalId != Timer.IntervalId)
+        {
+            _lastIntervalId = Timer.IntervalId;
+            _reminder?.Close();
+        }
         if (Timer.Phase != TimerPhase.Focus || Timer.IsAway) _reminder?.Close();
         if (Timer.Phase == TimerPhase.Break && !Timer.IsAway)
         {

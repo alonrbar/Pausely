@@ -115,6 +115,75 @@ var tests = new (string Name, Action Test)[]
         var (timer, clock) = Create(); timer.SetAway(true); timer.Start(); clock.Advance(60); timer.Tick();
         Equal(1500d, timer.Remaining.TotalSeconds); timer.SetAway(false); Equal(1500d, timer.Remaining.TotalSeconds);
     }),
+    ("One-off focus time leaves settings and next focus unchanged", () =>
+    {
+        var (timer, clock) = Create(); var original = timer.Settings;
+        timer.Start(); clock.Advance(100); timer.SetRemaining(TimeSpan.FromMinutes(7));
+        Equal(420d, timer.Remaining.TotalSeconds); Equal(420d, timer.IntervalDuration.TotalSeconds);
+        Equal(TimerPhase.Focus, timer.Phase); Equal(original, timer.Settings);
+        clock.Advance(420); timer.Tick(); Equal(TimerPhase.Locking, timer.Phase);
+        timer.SetAway(true); clock.Advance(300); timer.SetAway(false);
+        Equal(1500d, timer.Remaining.TotalSeconds); Equal(original, timer.Settings);
+    }),
+    ("Reset restores configured focus after a one-off time", () =>
+    {
+        var (timer, clock) = Create(); timer.Start(); timer.SetRemaining(TimeSpan.FromMinutes(40));
+        clock.Advance(120); timer.Reset(); Equal(1500d, timer.Remaining.TotalSeconds); Equal(0, timer.CompletedBreaks);
+        Equal(TimerPhase.Focus, timer.Phase);
+    }),
+    ("Adjust and reset preserve deliberate pause", () =>
+    {
+        var (timer, clock) = Create(); timer.Start(); timer.PauseOrResume(); timer.SetRemaining(TimeSpan.FromSeconds(95));
+        clock.Advance(600); Equal(95d, timer.Remaining.TotalSeconds); Equal(TimerPhase.Paused, timer.Phase);
+        timer.Reset(); clock.Advance(60); Equal(1500d, timer.Remaining.TotalSeconds); Equal(TimerPhase.Paused, timer.Phase);
+        timer.PauseOrResume(); clock.Advance(1); Equal(1499d, timer.Remaining.TotalSeconds);
+    }),
+    ("One-off break time completes normally without changing settings", () =>
+    {
+        var (timer, clock) = Create(); var original = timer.Settings;
+        timer.TakeBreak(); timer.SetAway(true); clock.Advance(1); timer.SetAway(false);
+        timer.SetRemaining(TimeSpan.FromSeconds(45)); Equal(TimerPhase.Break, timer.Phase); Equal(original, timer.Settings);
+        clock.Advance(45); timer.Tick(); Equal(TimerPhase.Focus, timer.Phase); Equal(1, timer.CompletedBreaks);
+    }),
+    ("Reset restores configured break without completing it", () =>
+    {
+        var (timer, clock) = Create(); timer.TakeBreak(); timer.SetAway(true); clock.Advance(10); timer.SetAway(false);
+        timer.SetRemaining(TimeSpan.FromSeconds(20)); timer.Reset(); Equal(300d, timer.Remaining.TotalSeconds);
+        Equal(TimerPhase.Break, timer.Phase); Equal(0, timer.CompletedBreaks);
+    }),
+    ("Adjustment rearms reminders and replaces the old deadline", () =>
+    {
+        var (timer, clock) = Create(); var warnings = 0; var locks = 0;
+        timer.ReminderRequested += () => warnings++; timer.LockRequested += () => locks++;
+        timer.Start(); clock.Advance(1440); timer.Tick(); Equal(1, warnings);
+        timer.SetRemaining(TimeSpan.FromMinutes(3)); clock.Advance(60); timer.Tick(); Equal(0, locks); Equal(1, warnings);
+        clock.Advance(60); timer.Tick(); timer.Tick(); Equal(2, warnings);
+    }),
+    ("Invalid time does not mutate the current interval", () =>
+    {
+        var (timer, _) = Create(); timer.Start(); var interval = timer.IntervalId;
+        foreach (var value in new[] { TimeSpan.Zero, TimeSpan.FromSeconds(-1), TimeSpan.FromMilliseconds(500), TimeSpan.FromMinutes(481) })
+        {
+            Throws<ArgumentOutOfRangeException>(() => timer.SetRemaining(value));
+            Equal(1500d, timer.Remaining.TotalSeconds); Equal(interval, timer.IntervalId);
+        }
+    }),
+    ("Inactive, locking, and away timers reject adjustments", () =>
+    {
+        var (timer, _) = Create(); True(!timer.CanAdjustTime);
+        Throws<InvalidOperationException>(() => timer.Reset());
+        timer.Start(); timer.TakeBreak(); True(!timer.CanAdjustTime);
+        Throws<InvalidOperationException>(() => timer.SetRemaining(TimeSpan.FromMinutes(2)));
+        timer.SetAway(true); True(!timer.CanAdjustTime);
+        Throws<InvalidOperationException>(() => timer.Reset());
+    }),
+    ("Interval identity changes on reset, adjustment and transition", () =>
+    {
+        var (timer, _) = Create(); timer.Start(); var id = timer.IntervalId;
+        timer.Reset(); True(timer.IntervalId != id); id = timer.IntervalId;
+        timer.SetRemaining(TimeSpan.FromMinutes(2)); True(timer.IntervalId != id); id = timer.IntervalId;
+        timer.TakeBreak(); timer.SetAway(true); True(timer.IntervalId != id);
+    }),
     ("New cycle rearms reminder", () =>
     {
         var (timer, clock) = Create(); var count = 0; timer.ReminderRequested += () => count++;
@@ -136,6 +205,11 @@ static (FocusTimer, FakeClock) Create(AppSettings? settings = null)
     return (new FocusTimer(clock, settings ?? new AppSettings()), clock);
 }
 static void True(bool value) { if (!value) throw new Exception("Expected true."); }
+static void Throws<T>(Action action) where T : Exception
+{
+    try { action(); } catch (T) { return; }
+    throw new Exception($"Expected {typeof(T).Name}.");
+}
 static void Equal<T>(T expected, T actual)
 {
     if (!EqualityComparer<T>.Default.Equals(expected, actual)) throw new Exception($"Expected {expected}, got {actual}.");

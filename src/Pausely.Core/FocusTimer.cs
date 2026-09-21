@@ -18,6 +18,10 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
     public event Action? ReminderRequested;
     public event Action? Changed;
     public AppSettings Settings => _settings;
+    public TimeSpan IntervalDuration { get; private set; }
+    public long IntervalId { get; private set; }
+    public bool CanAdjustTime => !IsAway && Phase is TimerPhase.Focus or TimerPhase.Paused or TimerPhase.Break;
+    public TimeSpan MaximumRemaining => TimeSpan.FromMinutes(Phase == TimerPhase.Break ? 120 : 480);
     public TimeSpan Remaining => Phase switch
     {
         TimerPhase.Focus when IsAway => _held,
@@ -38,6 +42,8 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         Error = null;
         _warned = false;
         _held = TimeSpan.FromMinutes(_settings.FocusMinutes);
+        IntervalDuration = _held;
+        IntervalId++;
         _deadline = clock.GetUtcNow() + _held;
         Phase = TimerPhase.Focus;
         Changed?.Invoke();
@@ -56,6 +62,24 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
             Phase = TimerPhase.Focus;
             Error = null;
         }
+        Changed?.Invoke();
+    }
+
+    public void Reset()
+        => SetRemaining(TimeSpan.FromMinutes(Phase == TimerPhase.Break ? _settings.BreakMinutes : _settings.FocusMinutes));
+
+    /// <summary>Adjust only this interval. A deliberately paused timer remains paused.</summary>
+    public void SetRemaining(TimeSpan remaining)
+    {
+        if (!CanAdjustTime) throw new InvalidOperationException("There is no editable countdown right now.");
+        if (remaining < TimeSpan.FromSeconds(1) || remaining > MaximumRemaining)
+            throw new ArgumentOutOfRangeException(nameof(remaining), $"Choose between one second and {MaximumRemaining.TotalMinutes:g} minutes.");
+        _held = remaining;
+        _deadline = clock.GetUtcNow() + remaining;
+        IntervalDuration = remaining;
+        IntervalId++;
+        _warned = false;
+        Error = null;
         Changed?.Invoke();
     }
 
@@ -134,7 +158,9 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
     private void BeginBreak()
     {
         Phase = TimerPhase.Break;
-        _deadline = clock.GetUtcNow().AddMinutes(_settings.BreakMinutes);
+        IntervalDuration = TimeSpan.FromMinutes(_settings.BreakMinutes);
+        IntervalId++;
+        _deadline = clock.GetUtcNow() + IntervalDuration;
         Changed?.Invoke();
     }
 

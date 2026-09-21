@@ -20,6 +20,14 @@ internal sealed class TrayContextMenu : Forms.ContextMenuStrip
         ApplyAppearance();
     }
 
+    public void ShowFromTray()
+    {
+        if (Visible) return;
+        Show(Forms.Cursor.Position);
+        // A manually opened tray popup must own foreground focus to dismiss on outside clicks.
+        _ = SetForegroundWindow(Handle);
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
@@ -79,6 +87,10 @@ internal sealed class TrayContextMenu : Forms.ContextMenuStrip
 
     [DllImport("dwmapi.dll")]
     private static extern int DwmSetWindowAttribute(nint window, int attribute, ref int value, int size);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(nint window);
 
     private sealed class MenuRenderer : Forms.ToolStripRenderer
     {

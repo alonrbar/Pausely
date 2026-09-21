@@ -1,0 +1,14 @@
+<Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.SetTimeWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Set Time" Width="438" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+  <WindowChrome.WindowChrome><WindowChrome CaptionHeight="98" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" NonClientFrameEdges="None" /></WindowChrome.WindowChrome>
+  <StackPanel Margin="28">
+    <Grid><TextBlock Text="Set time" FontSize="27" FontWeight="SemiBold"/><Button Content="×" Style="{StaticResource WindowControl}" HorizontalAlignment="Right" Click="Cancel_Click" ToolTip="Cancel" AutomationProperties.Name="Cancel time adjustment"/></Grid>
+    <TextBlock Text="Adjust this countdown only. Your settings stay the same." Foreground="{StaticResource Muted}" Margin="0,10,0,20" />
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/></Grid.ColumnDefinitions>
+      <StackPanel><Label Content="Minutes" Target="{Binding ElementName=MinutesInput}"/><TextBox x:Name="MinutesInput" FontSize="24" MaxLength="3" AutomationProperties.Name="Minutes remaining"/></StackPanel>
+      <StackPanel Grid.Column="2"><Label Content="Seconds" Target="{Binding ElementName=SecondsInput}"/><TextBox x:Name="SecondsInput" FontSize="24" MaxLength="2" AutomationProperties.Name="Seconds remaining"/></StackPanel>
+    </Grid>
+    <TextBlock x:Name="RangeHint" Style="{StaticResource Caption}" Margin="0,10,0,0" />
+    <TextBlock x:Name="ValidationText" Foreground="#A34332" AutomationProperties.LiveSetting="Polite" Margin="0,12,0,0" />
+    <Grid Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions><Button Content="Cancel" IsCancel="True" Click="Cancel_Click"/><Button x:Name="ApplyButton" Grid.Column="2" Content="Set Time" Style="{StaticResource Primary}" IsDefault="True" Click="Apply_Click"/></Grid>
+  </StackPanel>
+</Window>

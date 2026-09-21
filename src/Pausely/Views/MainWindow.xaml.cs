@@ -46,12 +46,13 @@ public partial class MainWindow : Window
         PrimaryButton.Content = phase switch { TimerPhase.Focus => "Pause timer", TimerPhase.Paused => "Resume focus", TimerPhase.Break => "Override break", _ => "Start focusing" };
         PrimaryButton.IsEnabled = phase is not (TimerPhase.Locking or TimerPhase.Ready);
         BreakButton.IsEnabled = phase is TimerPhase.Focus or TimerPhase.Paused or TimerPhase.Idle;
+        ResetButton.IsEnabled = SetTimeButton.IsEnabled = timer.CanAdjustTime;
         Rhythm.Text = $"{timer.Settings.FocusMinutes:g}m focus / {timer.Settings.BreakMinutes:g}m break";
         BreakCount.Text = $"{timer.CompletedBreaks} little reset{(timer.CompletedBreaks == 1 ? "" : "s")}";
         ErrorText.Text = timer.Error;
         ErrorText.Visibility = timer.Error is null ? Visibility.Collapsed : Visibility.Visible;
-        var total = phase == TimerPhase.Break ? timer.Settings.BreakMinutes : timer.Settings.FocusMinutes;
-        var fraction = Math.Clamp(timer.Remaining.TotalMinutes / total, 0, 0.99999);
+        var total = timer.IntervalDuration.TotalSeconds;
+        var fraction = total > 0 ? Math.Clamp(timer.Remaining.TotalSeconds / total, 0, 0.99999) : 0;
         if (fraction <= 0) { ProgressArc.Data = null; return; }
         var angle = fraction * 2 * Math.PI;
         var figure = new PathFigure { StartPoint = new Point(114, 10), IsClosed = false };
@@ -66,6 +67,15 @@ public partial class MainWindow : Window
     }
     private void Break_Click(object sender, RoutedEventArgs e) => _controller.Timer.TakeBreak();
     private void Settings_Click(object sender, RoutedEventArgs e) => _controller.ShowSettings();
+    private void Reset_Click(object sender, RoutedEventArgs e)
+    {
+        if (_controller.Timer.CanAdjustTime) _controller.Timer.Reset();
+    }
+    private void SetTime_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_controller.Timer.CanAdjustTime) return;
+        new SetTimeWindow(_controller.Timer) { Owner = this }.ShowDialog();
+    }
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 }

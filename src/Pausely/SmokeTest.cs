@@ -26,15 +26,17 @@ internal static class SmokeTest
             using var controller = new AppController(new SettingsStore(Path.Combine(output, "unused")), preview: true);
             controller.Timer.Start();
             CheckSettingsEditing(controller);
+            CheckTimeEditing();
             RenderTrayMenu(controller, output);
             Render(new MainWindow(controller), output, "dashboard", 558, 728);
+            Render(new SetTimeWindow(controller.Timer), output, "set-time", 438, 380);
             Render(new SettingsWindow(controller), output, "settings", 568, 818);
             Render(new SettingsWindow(controller), output, "settings-small", 528, 558);
             Render(new ReminderWindow("Quick break in one minute", 6), output, "reminder", 420, 235);
             controller.Timer.TakeBreak();
             controller.Timer.SetAway(true);
             Render(new BreakWindow(controller), output, "break", 498, 548);
-            File.WriteAllText(Path.Combine(output, "result.txt"), $"PASS: tray menu and four WPF views rendered (including compact settings); settings edit/revert/save checks, round trip and corrupt-file recovery passed; native session subscription succeeded (away={away}). No workstation lock or startup registration performed.");
+            File.WriteAllText(Path.Combine(output, "result.txt"), $"PASS: tray menu and five WPF views rendered (including compact settings); time editing, stale-dialog protection, settings edit/revert/save checks, round trip and corrupt-file recovery passed; native session subscription succeeded (away={away}). No workstation lock or startup registration performed.");
             app.Shutdown(0);
         }
         catch (Exception ex)
@@ -42,6 +44,50 @@ internal static class SmokeTest
             File.WriteAllText(Path.Combine(output, "result.txt"), ex.ToString());
             app.Shutdown(1);
         }
+    }
+    private static void CheckTimeEditing()
+    {
+        var timer = new FocusTimer(TimeProvider.System, new AppSettings());
+        timer.Start();
+        timer.PauseOrResume();
+        var original = timer.Settings;
+        var dialog = new SetTimeWindow(timer);
+        RunDialog(dialog, () =>
+        {
+            dialog.MinutesInput.Text = "0";
+            dialog.SecondsInput.Text = "0";
+            dialog.ApplyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            if (!dialog.IsVisible || string.IsNullOrEmpty(dialog.ValidationText.Text))
+                throw new InvalidOperationException("Zero time should show validation and keep the editor open.");
+            dialog.MinutesInput.Text = "1";
+            dialog.SecondsInput.Text = "35";
+            dialog.ApplyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        });
+        if (timer.Remaining != TimeSpan.FromSeconds(95) || timer.Phase != TimerPhase.Paused || timer.Settings != original)
+            throw new InvalidOperationException("Time editing must affect only the paused countdown.");
+
+        var stale = new SetTimeWindow(timer);
+        RunDialog(stale, () =>
+        {
+            timer.Reset();
+            if (stale.IsVisible) throw new InvalidOperationException("A stale time editor should close when its interval changes.");
+        });
+    }
+
+    private static void RunDialog(Window dialog, Action interaction)
+    {
+        Exception? failure = null;
+        dialog.WindowStartupLocation = WindowStartupLocation.Manual;
+        dialog.Left = dialog.Top = -10000;
+        dialog.ShowActivated = false;
+        dialog.Loaded += (_, _) =>
+        {
+            try { interaction(); }
+            catch (Exception ex) { failure = ex; }
+            finally { dialog.Close(); }
+        };
+        dialog.ShowDialog();
+        if (failure is not null) throw failure;
     }
     private static void RenderTrayMenu(AppController controller, string output)
     {

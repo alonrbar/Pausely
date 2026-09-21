@@ -21,7 +21,11 @@
       <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,16">
         <StackPanel HorizontalAlignment="Stretch">
           <TextBlock x:Name="PhaseLabel" Text="TIME TO FOCUS" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" />
-          <Grid Width="228" Height="228" Margin="0,16,0,12">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button x:Name="ResetButton" Content="Reset" Style="{StaticResource TextButton}" Click="Reset_Click" ToolTip="Reset this countdown to the configured duration" />
+            <Button x:Name="SetTimeButton" Content="Set Time" Style="{StaticResource TextButton}" Margin="8,0,0,0" Click="SetTime_Click" ToolTip="Change the time remaining for this countdown only" />
+          </StackPanel>
+          <Grid Width="228" Height="228" Margin="0,3,0,12">
             <Ellipse Stroke="#EDF1E8" StrokeThickness="9" Margin="6" />
             <Path x:Name="ProgressArc" Stroke="{StaticResource Accent}" StrokeThickness="9" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
             <StackPanel VerticalAlignment="Center">
@@ -43,7 +47,7 @@
         </Grid>
       </Border>
       <TextBlock Grid.Row="2" x:Name="ErrorText" Foreground="#A34332" Margin="0,12,0,0" Visibility="Collapsed" />
-      <TextBlock Grid.Row="3" Text="Close this window to keep Pausely in your tray.&#10;Right-click the tray icon for quick controls or to quit." Style="{StaticResource Caption}" TextAlignment="Center" Margin="0,20,0,0" />
+      <TextBlock Grid.Row="3" Text="Close this window to keep Pausely in your tray.&#10;Click the tray icon for quick controls or to quit." Style="{StaticResource Caption}" TextAlignment="Center" Margin="0,20,0,0" />
     </Grid>
   </ScrollViewer>
   </DockPanel>

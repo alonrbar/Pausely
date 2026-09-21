@@ -15,7 +15,7 @@ Pausely gives you a quiet heads-up before a break, locks your Windows account wh
 5. Unlock early and a topmost **“Break not over yet”** window shows the remaining time. Choose **Lock again** to finish your break, or **Override** to end it and start a fresh focus session. The prompt closes automatically when the break ends.
 6. If you stay locked until the break ends, the next focus session starts when you unlock, so you get the full focus interval.
 
-Closing the dashboard keeps the app in your system tray. Double-click the lotus icon to reopen it; right-click for pause/resume, take a break now, override, stop, settings, and quit. Windows may initially put the icon under the tray's **^** overflow menu.
+Closing the dashboard keeps the app in your system tray. Double-click the lotus icon to reopen it; Single-click for pause/resume, take a break now, override, stop, settings, and quit. Windows may initially put the icon under the tray's **^** overflow menu.
 
 The early-unlock prompt is a personal reminder, not an access restriction. It doesn't disable other applications, intercept keys, or replace Windows security. Alt+F4 keeps the prompt open; use **Override**, **Lock again**, wait for it to finish, or quit from the tray.
 
@@ -125,7 +125,7 @@ There are no third-party runtime or test package dependencies. The deterministic
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify.ps1
 ```
 
-It builds with warnings treated as errors, runs the timer scenarios, checks settings persistence/recovery and native session subscription, and renders all four real WPF screens into `artifacts\smoke`. It **doesn't lock the workstation or change startup registration/user settings**. The WPF smoke check needs an interactive Windows desktop; CI runs the deterministic timer checks and publishes the application.
+It builds with warnings treated as errors, runs the timer scenarios, checks settings persistence/recovery, current-time editing, and native session subscription, and renders all five WPF screens and the tray menu into `artifacts\smoke`. It **doesn't lock the workstation or change startup registration/user settings**. The WPF smoke check needs an interactive Windows desktop; CI runs the deterministic timer checks and publishes the application.
 
 For a quick manual end-to-end check, save **0.5 minute focus**, **0.25 minute break**, **10 second reminder**, and **3 second display**. Restart the focus interval (tray → Stop timer → Start focusing). Expect a reminder after 20 seconds, a Windows lock after 30 seconds, and the break prompt if you unlock within 15 seconds. Check **Lock again**, then repeat with **Override**, and restore your preferred settings. Also try Win+L during focus and a sleep/resume cycle. Native lock/unlock and sleep integration should be checked on your actual laptop; automated checks deliberately don't trigger these actions.
 
