@@ -15,7 +15,7 @@ Pausely gives you a quiet heads-up before a break, locks your Windows account wh
 5. Unlock early and a topmost **“Break not over yet”** window shows the remaining time. Choose **Lock again** to finish your break, or **Override** to end it and start a fresh focus session. The prompt closes automatically when the break ends.
 6. If you stay locked until the break ends, the next focus session starts when you unlock, so you get the full focus interval.
 
-Closing the dashboard keeps the app in your system tray. Double-click the pause icon to reopen it; right-click for pause/resume, take a break now, override, stop, settings, and quit. Windows may initially put the icon under the tray's **^** overflow menu.
+Closing the dashboard keeps the app in your system tray. Double-click the lotus icon to reopen it; right-click for pause/resume, take a break now, override, stop, settings, and quit. Windows may initially put the icon under the tray's **^** overflow menu.
 
 The early-unlock prompt is a personal reminder, not an access restriction. It doesn't disable other applications, intercept keys, or replace Windows security. Alt+F4 keeps the prompt open; use **Override**, **Lock again**, wait for it to finish, or quit from the tray.
 

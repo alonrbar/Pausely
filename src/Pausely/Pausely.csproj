@@ -13,5 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Pausely.Core\Pausely.Core.csproj" />
     <Resource Include="Assets\Pausely.ico" />
+    <Resource Include="Assets\Pausely.png" />
   </ItemGroup>
 </Project>

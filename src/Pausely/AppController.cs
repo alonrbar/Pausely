@@ -42,7 +42,7 @@ public sealed class AppController : IDisposable
             _session.SuspensionChanged += OnSuspensionChanged;
             Timer.SetAway(WindowsSession.IsAway());
             using var resource = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/Pausely.ico"))!.Stream;
-            _icon = new Icon(resource);
+            _icon = new Icon(resource, Forms.SystemInformation.SmallIconSize);
             _tray = new Forms.NotifyIcon { Icon = _icon, Text = "Pausely · Ready when you are", Visible = true };
             _tray.DoubleClick += (_, _) => ShowMain();
             _tray.ContextMenuStrip = BuildTrayMenu();
@@ -153,9 +153,9 @@ public sealed class AppController : IDisposable
         if (_breakItem is not null) _breakItem.Enabled = Timer.Phase is TimerPhase.Focus or TimerPhase.Paused or TimerPhase.Idle;
         if (_overrideItem is not null) _overrideItem.Visible = Timer.Phase == TimerPhase.Break;
     }
-    private Forms.ContextMenuStrip BuildTrayMenu()
+    internal Forms.ContextMenuStrip BuildTrayMenu()
     {
-        var menu = new Forms.ContextMenuStrip();
+        var menu = new TrayContextMenu();
         _statusItem = new Forms.ToolStripMenuItem("Ready when you are") { Enabled = false };
         menu.Items.Add(_statusItem);
         menu.Items.Add("Open Pausely", null, (_, _) => ShowMain());

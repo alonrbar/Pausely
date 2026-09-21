@@ -1,7 +1,7 @@
 <Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.BreakWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Break not over yet" Width="498" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="True">
   <WindowChrome.WindowChrome><WindowChrome CaptionHeight="114" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" NonClientFrameEdges="None" /></WindowChrome.WindowChrome>
   <StackPanel Margin="32">
-    <Border Background="#E7EEDF" CornerRadius="28" Width="64" Height="64" HorizontalAlignment="Left"><TextBlock Text="Ⅱ" FontSize="34" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+    <Image Source="{StaticResource AppLogo}" Width="64" Height="64" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="Pausely logo" />
     <TextBlock x:Name="Message" Text="Break not over yet" FontSize="29" FontWeight="SemiBold" Margin="0,22,0,10"/>
     <TextBlock Text="Give yourself a little more room to recharge. Your next focus session can wait." Foreground="{StaticResource Muted}" FontSize="15"/>
     <TextBlock x:Name="Countdown" Text="04:32" FontSize="54" FontWeight="Light" Margin="0,20,0,0"/>

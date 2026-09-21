@@ -26,6 +26,7 @@ internal static class SmokeTest
             using var controller = new AppController(new SettingsStore(Path.Combine(output, "unused")), preview: true);
             controller.Timer.Start();
             CheckSettingsEditing(controller);
+            RenderTrayMenu(controller, output);
             Render(new MainWindow(controller), output, "dashboard", 558, 728);
             Render(new SettingsWindow(controller), output, "settings", 568, 818);
             Render(new SettingsWindow(controller), output, "settings-small", 528, 558);
@@ -33,7 +34,7 @@ internal static class SmokeTest
             controller.Timer.TakeBreak();
             controller.Timer.SetAway(true);
             Render(new BreakWindow(controller), output, "break", 498, 548);
-            File.WriteAllText(Path.Combine(output, "result.txt"), $"PASS: four WPF views rendered (including compact settings); settings edit/revert/save checks, round trip and corrupt-file recovery passed; native session subscription succeeded (away={away}). No workstation lock or startup registration performed.");
+            File.WriteAllText(Path.Combine(output, "result.txt"), $"PASS: tray menu and four WPF views rendered (including compact settings); settings edit/revert/save checks, round trip and corrupt-file recovery passed; native session subscription succeeded (away={away}). No workstation lock or startup registration performed.");
             app.Shutdown(0);
         }
         catch (Exception ex)
@@ -41,6 +42,17 @@ internal static class SmokeTest
             File.WriteAllText(Path.Combine(output, "result.txt"), ex.ToString());
             app.Shutdown(1);
         }
+    }
+    private static void RenderTrayMenu(AppController controller, string output)
+    {
+        using var menu = controller.BuildTrayMenu();
+        controller.Timer.Tick();
+        _ = menu.Handle;
+        menu.PerformLayout();
+        menu.Size = menu.GetPreferredSize(System.Drawing.Size.Empty);
+        using var bitmap = new System.Drawing.Bitmap(menu.Width, menu.Height);
+        menu.DrawToBitmap(bitmap, new System.Drawing.Rectangle(System.Drawing.Point.Empty, menu.Size));
+        bitmap.Save(Path.Combine(output, "tray-menu.png"), System.Drawing.Imaging.ImageFormat.Png);
     }
     private static void CheckSettingsEditing(AppController controller)
     {

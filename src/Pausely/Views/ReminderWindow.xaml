@@ -3,7 +3,7 @@
     <Border Background="{StaticResource Canvas}" CornerRadius="18" IsHitTestVisible="False"><Border.Effect><DropShadowEffect Color="#233C35" BlurRadius="26" ShadowDepth="5" Direction="270" Opacity="0.28" /></Border.Effect></Border>
   <Border Background="{StaticResource Canvas}" BorderBrush="#CBD6CA" BorderThickness="1" CornerRadius="18" Padding="23">
     <StackPanel>
-      <Grid><TextBlock Text="Ⅱ  PAUSELY" FontSize="12" Foreground="{StaticResource Accent}" FontWeight="Bold" VerticalAlignment="Center"/><Button Content="×" Click="Dismiss_Click" HorizontalAlignment="Right" Padding="8,2" AutomationProperties.Name="Dismiss reminder"/></Grid>
+      <Grid><StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Image Source="{StaticResource AppLogo}" Width="20" Height="20" Margin="0,0,7,0" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="Pausely logo"/><TextBlock Text="PAUSELY" FontSize="12" Foreground="{StaticResource Accent}" FontWeight="Bold" VerticalAlignment="Center"/></StackPanel><Button Content="×" Click="Dismiss_Click" HorizontalAlignment="Right" Padding="8,2" AutomationProperties.Name="Dismiss reminder"/></Grid>
       <TextBlock x:Name="Message" FontSize="23" FontWeight="SemiBold" Margin="0,12,0,7"/>
       <TextBlock Text="Find a stopping point. Your screen will lock soon." Foreground="{StaticResource Muted}" FontSize="13"/>
     </StackPanel>

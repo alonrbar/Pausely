@@ -1,5 +1,6 @@
 <Application x:Class="Pausely.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" ShutdownMode="OnExplicitShutdown">
   <Application.Resources>
+    <BitmapImage x:Key="AppLogo" UriSource="/Assets/Pausely.png" DecodePixelWidth="256" />
     <SolidColorBrush x:Key="Ink" Color="#233C35" />
     <SolidColorBrush x:Key="Muted" Color="#62736C" />
     <SolidColorBrush x:Key="Accent" Color="#376953" />

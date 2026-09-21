@@ -3,8 +3,11 @@
       <Grid DockPanel.Dock="Top" Margin="0,0,0,26">
         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal">
-          <Border Background="{StaticResource Accent}" CornerRadius="12" Width="44" Height="44" Margin="0,0,12,0"><TextBlock Text="Ⅱ" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-          <StackPanel><TextBlock Text="Pausely" FontSize="25" FontWeight="SemiBold"/><TextBlock Text="A little pause. A better day." Style="{StaticResource Caption}"/></StackPanel>
+          <Image Source="{StaticResource AppLogo}" Width="44" Height="44" Margin="0,4,12,0" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="Pausely logo" />
+          <StackPanel>
+            <TextBlock Text="Pausely" FontSize="25" FontWeight="SemiBold"/>
+            <TextBlock Text="A little pause. A better day." Style="{StaticResource Caption}"/>
+          </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
           <Button Content="Settings" Click="Settings_Click" Padding="10,9" Margin="0,0,6,0" />

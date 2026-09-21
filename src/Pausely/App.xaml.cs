@@ -21,7 +21,7 @@ public partial class App : Application
         _singleInstance = new Mutex(true, @"Local\Pausely.TrayApp", out var first);
         if (!first)
         {
-            MessageBox.Show("Pausely is already running. Double-click its pause icon in the system tray to open it.", "Pausely", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Pausely is already running. Double-click its lotus icon in the system tray to open it.", "Pausely", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
