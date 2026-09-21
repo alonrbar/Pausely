@@ -27,6 +27,7 @@ public sealed class AppController : IDisposable
     private int _syncTicks;
     private long _lastIntervalId;
     public FocusTimer Timer { get; }
+    public string SettingsDirectory => Path.GetDirectoryName(Path.GetFullPath(_store.FilePath))!;
     public bool IsExiting { get; private set; }
 
     public AppController(SettingsStore store, bool preview = false, TimeProvider? clock = null)

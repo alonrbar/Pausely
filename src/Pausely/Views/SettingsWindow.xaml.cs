@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
@@ -11,7 +13,9 @@ public partial class SettingsWindow : Window
     public SettingsWindow(AppController controller)
     {
         InitializeComponent();
+        OpenInstallationFolderButton.ToolTip = AppContext.BaseDirectory;
         _controller = controller;
+        OpenSettingsFolderButton.ToolTip = controller.SettingsDirectory;
         _savedSettings = controller.Timer.Settings;
         Populate(_savedSettings);
         AddHandler(TextBox.TextChangedEvent, new TextChangedEventHandler((_, _) => UpdateSaveState()));
@@ -69,6 +73,29 @@ public partial class SettingsWindow : Window
         Populate(new AppSettings());
         UpdateSaveState();
         ValidationText.Text = SaveButton.IsEnabled ? "Defaults restored. Save Settings to apply." : "Default settings are already saved.";
+    }
+    private void OpenInstallationFolder_Click(object sender, RoutedEventArgs e)
+        => OpenFolder(AppContext.BaseDirectory, "installation");
+
+    private void OpenSettingsFolder_Click(object sender, RoutedEventArgs e)
+        => OpenFolder(_controller.SettingsDirectory, "settings", ensureExists: true);
+
+    private void OpenFolder(string path, string description, bool ensureExists = false)
+    {
+        try
+        {
+            // A new installation might not have saved settings yet.
+            if (ensureExists) Directory.CreateDirectory(path);
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = path,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            ValidationText.Text = $"Couldn't open the {description} folder: {ex.Message}";
+        }
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 }

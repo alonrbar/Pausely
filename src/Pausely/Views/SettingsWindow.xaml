@@ -36,6 +36,13 @@
           <CheckBox x:Name="SoundInput" Content="Play a gentle system sound with reminders"/>
           <TextBlock Text="New timing applies to the next interval. Your current countdown stays intact." Style="{StaticResource Caption}" Margin="0,10,0,0"/>
         </StackPanel></Border>
+        <Border Style="{StaticResource Card}" Margin="0,14,0,0"><StackPanel>
+          <TextBlock Text="APP FOLDERS" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold"/>
+          <WrapPanel Margin="0,14,0,0">
+            <Button x:Name="OpenInstallationFolderButton" Content="Open installation folder" Margin="0,0,8,8" Click="OpenInstallationFolder_Click"/>
+            <Button x:Name="OpenSettingsFolderButton" Content="Open settings folder" Margin="0,0,0,8" Click="OpenSettingsFolder_Click"/>
+          </WrapPanel>
+        </StackPanel></Border>
       </StackPanel>
     </ScrollViewer>
   </DockPanel>
