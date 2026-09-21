@@ -1,4 +1,4 @@
-<Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Settings" Width="530" Height="780" MinWidth="460" MinHeight="520" WindowStartupLocation="CenterOwner">
+<Window Style="{StaticResource FramelessWindow}" x:Class="Pausely.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Pausely · Settings" Width="568" Height="818" MinWidth="528" MinHeight="558" WindowStartupLocation="CenterOwner">
   <DockPanel Margin="28">
     <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
       <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -7,10 +7,11 @@
     </Grid>
     <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
       <TextBlock x:Name="ValidationText" Foreground="#A34332" Margin="0,0,0,10" AutomationProperties.LiveSetting="Polite" />
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Button Content="Defaults" Click="Defaults_Click" HorizontalAlignment="Left"/><Button Grid.Column="1" Content="Cancel" IsCancel="True" Click="Cancel_Click"/><Button Grid.Column="3" Content="Save settings" IsDefault="True" Style="{StaticResource Primary}" Click="Save_Click"/></Grid>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Button x:Name="DefaultsButton" Content="Reset to Defaults" Click="Defaults_Click" Padding="12,11" HorizontalAlignment="Left"/><Button Grid.Column="1" Content="Cancel" IsCancel="True" Click="Cancel_Click" Padding="12,11"/><Button x:Name="SaveButton" Grid.Column="3" Content="Save Settings" IsEnabled="False" IsDefault="True" Style="{StaticResource Primary}" Click="Save_Click" Padding="12,11"/></Grid>
     </StackPanel>
-    <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-      <StackPanel>
+    <ScrollViewer x:Name="SettingsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+      <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource SettingsScrollBar}" /></ScrollViewer.Resources>
+      <StackPanel Margin="0,0,12,0">
         <Border Style="{StaticResource Card}"><StackPanel>
           <TextBlock Text="YOUR TIMING" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,14"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>

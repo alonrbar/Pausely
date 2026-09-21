@@ -15,9 +15,35 @@
     </Style>
     <Style x:Key="FramelessWindow" TargetType="Window" BasedOn="{StaticResource {x:Type Window}}">
       <Setter Property="WindowStyle" Value="None" />
+      <Setter Property="AllowsTransparency" Value="True" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Window">
+            <Grid>
+            <Grid x:Name="WindowSurface" Margin="18">
+              <!-- Shadow only the backdrop, so text stays crisp and timer updates stay cheap. -->
+              <Border x:Name="Shadow" Background="{StaticResource Canvas}" CornerRadius="18" IsHitTestVisible="False">
+                <Border.Effect><DropShadowEffect Color="#233C35" BlurRadius="26" ShadowDepth="5" Direction="270" Opacity="0.28" /></Border.Effect>
+              </Border>
+              <Border x:Name="Surface" Background="{StaticResource Canvas}" BorderBrush="#CBD6CA" BorderThickness="1" CornerRadius="18">
+                <AdornerDecorator><ContentPresenter /></AdornerDecorator>
+              </Border>
+            </Grid>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="WindowState" Value="Maximized">
+                <Setter TargetName="WindowSurface" Property="Margin" Value="0" />
+                <Setter TargetName="Surface" Property="CornerRadius" Value="0" />
+                <Setter TargetName="Shadow" Property="Visibility" Value="Collapsed" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
       <Setter Property="WindowChrome.WindowChrome">
         <Setter.Value>
-          <WindowChrome CaptionHeight="80" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="16" UseAeroCaptionButtons="False" NonClientFrameEdges="None" />
+          <WindowChrome CaptionHeight="98" ResizeBorderThickness="22" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" NonClientFrameEdges="None" />
         </Setter.Value>
       </Setter>
     </Style>
@@ -63,6 +89,37 @@
       <Setter Property="BorderThickness" Value="1" /><Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
     <Style TargetType="CheckBox"><Setter Property="Margin" Value="0,7" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+    <Style x:Key="SettingsScrollThumb" TargetType="Thumb">
+      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="Template"><Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Border x:Name="Handle" Background="#A3B7A3" CornerRadius="4" Margin="3,0" />
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Handle" Property="Background" Value="#6F9177" /></Trigger>
+            <Trigger Property="IsDragging" Value="True"><Setter TargetName="Handle" Property="Background" Value="{StaticResource Accent}" /></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value></Setter>
+    </Style>
+    <Style x:Key="ScrollPageButton" TargetType="RepeatButton">
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SettingsScrollBar" TargetType="ScrollBar">
+      <Setter Property="Width" Value="12" /><Setter Property="MinWidth" Value="12" />
+      <Setter Property="Background" Value="#E8EEE4" /><Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+      <Setter Property="Template"><Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Border Background="{TemplateBinding Background}" CornerRadius="6">
+            <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}">
+              <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPageButton}" /></Track.DecreaseRepeatButton>
+              <Track.Thumb><Thumb Style="{StaticResource SettingsScrollThumb}" /></Track.Thumb>
+              <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPageButton}" /></Track.IncreaseRepeatButton>
+            </Track>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value></Setter>
+    </Style>
     <Style x:Key="Card" TargetType="Border">
       <Setter Property="Background" Value="White" /><Setter Property="CornerRadius" Value="18" />
       <Setter Property="Padding" Value="22" /><Setter Property="BorderBrush" Value="{StaticResource Line}" /><Setter Property="BorderThickness" Value="1" />
