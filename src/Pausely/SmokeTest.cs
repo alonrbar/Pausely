@@ -2,6 +2,8 @@ using Pausely.Services;
 using Pausely.Views;
 using System.Globalization;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -51,9 +53,34 @@ internal static class SmokeTest
         timer.Start();
         timer.PauseOrResume();
         var original = timer.Settings;
+        var originalRemaining = timer.Remaining;
         var dialog = new SetTimeWindow(timer);
         RunDialog(dialog, () =>
         {
+            if (dialog.MinutesInput.Text != "15" || dialog.SecondsInput.Text != "00")
+                throw new InvalidOperationException("Set Time should initially offer 15:00.");
+            dialog.MinutesUp.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            dialog.SecondsUp.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            if (dialog.MinutesInput.Text != "16" || dialog.SecondsInput.Text != "01")
+                throw new InvalidOperationException("Stepper arrows should increase their respective fields.");
+            PressKey(dialog.MinutesInput, Key.Down);
+            PressKey(dialog.SecondsInput, Key.Down);
+            if (dialog.MinutesInput.Text != "15" || dialog.SecondsInput.Text != "00")
+                throw new InvalidOperationException("Down should decrease the focused time field.");
+            PressKey(dialog.SecondsInput, Key.Down);
+            if (dialog.SecondsInput.Text != "00")
+                throw new InvalidOperationException("Seconds must not step below zero.");
+            dialog.SecondsInput.Text = "59";
+            PressKey(dialog.SecondsInput, Key.Up);
+            if (dialog.SecondsInput.Text != "59")
+                throw new InvalidOperationException("Seconds must not step above 59.");
+            dialog.MinutesInput.Text = "479";
+            PressKey(dialog.MinutesInput, Key.Up);
+            PressKey(dialog.SecondsInput, Key.Up);
+            if (dialog.MinutesInput.Text != "480" || dialog.SecondsInput.Text != "00")
+                throw new InvalidOperationException("Stepping must respect the maximum interval duration.");
+            if (timer.Settings != original || timer.Remaining != originalRemaining)
+                throw new InvalidOperationException("Editing time fields must not apply the countdown before confirmation.");
             dialog.MinutesInput.Text = "0";
             dialog.SecondsInput.Text = "0";
             dialog.ApplyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -69,9 +96,21 @@ internal static class SmokeTest
         var stale = new SetTimeWindow(timer);
         RunDialog(stale, () =>
         {
+            if (stale.MinutesInput.Text != "15" || stale.SecondsInput.Text != "00")
+                throw new InvalidOperationException("Reopening Set Time should offer 15:00 regardless of the current countdown.");
             timer.Reset();
             if (stale.IsVisible) throw new InvalidOperationException("A stale time editor should close when its interval changes.");
         });
+    }
+
+    private static void PressKey(TextBox input, Key key)
+    {
+        var e = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(input), 0, key)
+        {
+            RoutedEvent = Keyboard.PreviewKeyDownEvent
+        };
+        input.RaiseEvent(e);
+        if (!e.Handled) throw new InvalidOperationException("The time input should handle its arrow keys.");
     }
 
     private static void RunDialog(Window dialog, Action interaction)

@@ -49,8 +49,7 @@ public sealed class AppController : IDisposable
             _tray.ContextMenuStrip = BuildTrayMenu();
             _tray.MouseClick += (_, e) =>
             {
-                if (e.Button == Forms.MouseButtons.Left && _tray.ContextMenuStrip is TrayContextMenu menu)
-                    menu.ShowFromTray();
+                if (e.Button == Forms.MouseButtons.Left) ShowMain();
             };
         }
         Timer.LockRequested += RequestLock;
@@ -68,6 +67,7 @@ public sealed class AppController : IDisposable
 
     public MainWindow ShowMain()
     {
+        _tray?.ContextMenuStrip?.Close();
         _main ??= new MainWindow(this);
         _main.Show();
         _main.WindowState = WindowState.Normal;
