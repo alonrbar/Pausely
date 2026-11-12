@@ -110,12 +110,12 @@ Use the settings UI to change **StartWithWindows**, because saving also updates 
 - **Manual lock, sleep, or session disconnect during focus:** focus time freezes. Return before the configured break length to resume the remaining time; stay away at least that long to begin a fresh focus interval.
 - **Sleep during a scheduled break:** elapsed time counts toward the break. A completed break waits for your return before starting focus.
 - **Pause:** freezes focus until you resume. Locking/unlocking doesn't undo a deliberate pause.
-- **Stop / quit:** stops scheduling locks. Reopening Pausely starts a fresh session according to your launch preference; active countdowns and session break counts aren't persisted.
+- **Stop / quit:** stops scheduling locks. Reopening Pausely starts a fresh session according to your launch preference; active countdowns and session totals aren't persisted.
 - **Lock failure:** a failed request or missing confirmation after 8 seconds pauses the timer and shows an error. Resume or use “Take a break” to retry.
 - **Multiple launches:** only one regular instance runs per Windows session.
 - **Long absences:** no queue of missed breaks and no immediate lock when you return.
 
-Breaks completed through Pausely count toward **breaks this session**; overrides and voluntary manual locks don't increment that count. Pausely doesn't unlock Windows automatically, prevent sleep, or wake the laptop. The reminder uses the primary display's usable area above the taskbar. Timing uses UTC deadlines (so time-zone/DST changes have no effect); manually changing the system clock can affect an active countdown.
+The **this session** panel shows total focus time (counting down only: not paused, locked, or away) and total break time. Hover it for the list of focus and break entries with their start times; the ↺ button resets the totals. Totals start empty every launch. Pausely doesn't unlock Windows automatically, prevent sleep, or wake the laptop. The reminder uses the primary display's usable area above the taskbar. Timing uses UTC deadlines (so time-zone/DST changes have no effect); manually changing the system clock can affect an active countdown.
 
 ## Verify and develop
 
