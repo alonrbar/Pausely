@@ -48,7 +48,11 @@ public partial class MainWindow : Window
         BreakButton.IsEnabled = phase is TimerPhase.Focus or TimerPhase.Paused or TimerPhase.Idle;
         ResetButton.IsEnabled = SetTimeButton.IsEnabled = timer.CanAdjustTime;
         Rhythm.Text = $"{timer.Settings.FocusMinutes:g}m focus / {timer.Settings.BreakMinutes:g}m break";
-        BreakCount.Text = $"{timer.CompletedBreaks} little reset{(timer.CompletedBreaks == 1 ? "" : "s")}";
+        SessionTotals.Text = $"{FormatTotal(timer.TotalFocus)} focus · {FormatTotal(timer.TotalBreak)} break";
+        var activity = timer.Activity;
+        SessionLog.Text = activity.Count == 0 ? "No focus or break time yet."
+            : string.Join(Environment.NewLine, activity.Select(entry =>
+                $"{entry.Start.ToLocalTime():HH:mm}   {(entry.Kind == ActivityKind.Focus ? "Focus" : "Break"),-5}   {FormatEntry(entry.Duration)}"));
         ErrorText.Text = timer.Error;
         ErrorText.Visibility = timer.Error is null ? Visibility.Collapsed : Visibility.Visible;
         var total = timer.IntervalDuration.TotalSeconds;
@@ -60,11 +64,17 @@ public partial class MainWindow : Window
         ProgressArc.Data = new PathGeometry([figure]);
     }
 
+    private static string FormatTotal(TimeSpan value)
+        => value.TotalHours >= 1 ? $"{(int)value.TotalHours}h {value.Minutes:00}m" : value.TotalMinutes >= 1 ? $"{value.Minutes}m" : $"{value.Seconds}s";
+    private static string FormatEntry(TimeSpan value)
+        => value.TotalHours >= 1 ? $"{(int)value.TotalHours}h {value.Minutes:00}m {value.Seconds:00}s" : $"{value.Minutes}m {value.Seconds:00}s";
+
     private void Primary_Click(object sender, RoutedEventArgs e)
     {
         if (_controller.Timer.Phase is TimerPhase.Focus or TimerPhase.Paused) _controller.Timer.PauseOrResume();
         else _controller.Timer.Start();
     }
+    private void ResetActivity_Click(object sender, RoutedEventArgs e) => _controller.Timer.ResetActivity();
     private void Break_Click(object sender, RoutedEventArgs e) => _controller.Timer.TakeBreak();
     private void Settings_Click(object sender, RoutedEventArgs e) => _controller.ShowSettings();
     private void Reset_Click(object sender, RoutedEventArgs e)

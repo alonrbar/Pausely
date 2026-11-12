@@ -2,6 +2,11 @@ namespace Pausely.Core;
 
 public enum TimerPhase { Idle, Focus, Paused, Locking, Break, Ready }
 
+public enum ActivityKind { Focus, Break }
+
+/// <summary>Focus covers running and paused focus; break covers breaks and any time locked or away. Idle is not tracked.</summary>
+public sealed record ActivityEntry(ActivityKind Kind, DateTimeOffset Start, TimeSpan Duration);
+
 /// <summary>All calls belong to the UI thread. No Windows dependencies; clock is injectable.</summary>
 public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
 {
@@ -14,6 +19,9 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
     public bool IsAway => _awaySince.HasValue;
     public int CompletedBreaks { get; private set; }
     public string? Error { get; private set; }
+    private readonly List<ActivityEntry> _activity = [];
+    private ActivityKind? _activeKind;
+    private DateTimeOffset _activeSince;
     public event Action? LockRequested;
     public event Action? ReminderRequested;
     public event Action? Changed;
@@ -30,11 +38,34 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         _ => TimeSpan.Zero
     };
 
+    /// <summary>Focus and break entries this session; focus time between two breaks is one entry. Includes the live entry.</summary>
+    public IReadOnlyList<ActivityEntry> Activity
+    {
+        get
+        {
+            var live = _activeKind is null ? TimeSpan.Zero : Max(clock.GetUtcNow() - _activeSince);
+            var result = _activity.ToList();
+            if (live > TimeSpan.Zero && result.Count > 0) result[^1] = result[^1] with { Duration = result[^1].Duration + live };
+            result.RemoveAll(entry => entry.Duration < TimeSpan.FromSeconds(1));
+            return result;
+        }
+    }
+    public TimeSpan TotalFocus => Total(ActivityKind.Focus);
+    public TimeSpan TotalBreak => Total(ActivityKind.Break);
+
+    /// <summary>Clears the focus/break totals. A running focus or break keeps counting from zero.</summary>
+    public void ResetActivity()
+    {
+        _activity.Clear();
+        _activeKind = null;
+        Notify();
+    }
+
     public void Configure(AppSettings value)
     {
         if (value.Validate() is { } error) throw new ArgumentException(error);
         _settings = value;
-        Changed?.Invoke(); // Active interval retains its deadline; next interval uses new settings.
+        Notify(); // Active interval retains its deadline; next interval uses new settings.
     }
 
     public void Start()
@@ -46,7 +77,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         IntervalId++;
         _deadline = clock.GetUtcNow() + _held;
         Phase = TimerPhase.Focus;
-        Changed?.Invoke();
+        Notify();
     }
 
     public void PauseOrResume()
@@ -62,7 +93,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
             Phase = TimerPhase.Focus;
             Error = null;
         }
-        Changed?.Invoke();
+        Notify();
     }
 
     public void Reset()
@@ -80,14 +111,14 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         IntervalId++;
         _warned = false;
         Error = null;
-        Changed?.Invoke();
+        Notify();
     }
 
     public void Stop()
     {
         Phase = TimerPhase.Idle;
         Error = null;
-        Changed?.Invoke();
+        Notify();
     }
 
     public void TakeBreak()
@@ -98,7 +129,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         Phase = TimerPhase.Locking;
         _deadline = clock.GetUtcNow().AddSeconds(8);
         Error = null;
-        Changed?.Invoke();
+        Notify();
         LockRequested?.Invoke();
     }
 
@@ -106,7 +137,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
     {
         if (Phase == TimerPhase.Locking) Phase = TimerPhase.Paused;
         Error = error;
-        Changed?.Invoke();
+        Notify();
     }
 
     public void SetAway(bool away)
@@ -130,7 +161,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
             }
             Tick();
         }
-        Changed?.Invoke();
+        Notify();
     }
 
     public void Tick()
@@ -152,7 +183,7 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
                 ReminderRequested?.Invoke();
             }
         }
-        Changed?.Invoke();
+        Notify();
     }
 
     private void BeginBreak()
@@ -161,7 +192,31 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         IntervalDuration = TimeSpan.FromMinutes(_settings.BreakMinutes);
         IntervalId++;
         _deadline = clock.GetUtcNow() + IntervalDuration;
+        Notify();
+    }
+
+    private TimeSpan Total(ActivityKind kind)
+        => Activity.Where(entry => entry.Kind == kind).Aggregate(TimeSpan.Zero, (sum, entry) => sum + entry.Duration);
+
+    private void Notify()
+    {
+        TrackActivity();
         Changed?.Invoke();
+    }
+
+    /// <summary>Accrues elapsed time into the open entry, then opens a new entry when the activity kind changes.</summary>
+    private void TrackActivity()
+    {
+        var now = clock.GetUtcNow();
+        if (_activeKind is not null && _activity.Count > 0)
+            _activity[^1] = _activity[^1] with { Duration = _activity[^1].Duration + Max(now - _activeSince) };
+        _activeSince = now;
+        _activeKind = Phase == TimerPhase.Idle ? null
+            : IsAway || Phase is TimerPhase.Break or TimerPhase.Ready ? ActivityKind.Break
+            : ActivityKind.Focus; // Focus, Paused, and the brief Locking hand-off.
+        if (_activeKind is not { } kind) return;
+        if (_activity.Count > 0 && _activity[^1].Kind != kind && _activity[^1].Duration < TimeSpan.FromSeconds(1)) _activity.RemoveAt(_activity.Count - 1);
+        if (_activity.Count == 0 || _activity[^1].Kind != kind) _activity.Add(new ActivityEntry(kind, now, TimeSpan.Zero));
     }
 
     private static TimeSpan Max(TimeSpan value) => value < TimeSpan.Zero ? TimeSpan.Zero : value;
