@@ -4,7 +4,7 @@ public enum TimerPhase { Idle, Focus, Paused, Locking, Break, Ready }
 
 public enum ActivityKind { Focus, Break }
 
-/// <summary>Time actually spent focusing (counting down, not paused or away) or on a break.</summary>
+/// <summary>Focus covers running and paused focus; break covers breaks and any time locked or away. Idle is not tracked.</summary>
 public sealed record ActivityEntry(ActivityKind Kind, DateTimeOffset Start, TimeSpan Duration);
 
 /// <summary>All calls belong to the UI thread. No Windows dependencies; clock is injectable.</summary>
@@ -211,7 +211,9 @@ public sealed class FocusTimer(TimeProvider clock, AppSettings settings)
         if (_activeKind is not null && _activity.Count > 0)
             _activity[^1] = _activity[^1] with { Duration = _activity[^1].Duration + Max(now - _activeSince) };
         _activeSince = now;
-        _activeKind = Phase == TimerPhase.Break ? ActivityKind.Break : Phase == TimerPhase.Focus && !IsAway ? ActivityKind.Focus : null;
+        _activeKind = Phase == TimerPhase.Idle ? null
+            : IsAway || Phase is TimerPhase.Break or TimerPhase.Ready ? ActivityKind.Break
+            : ActivityKind.Focus; // Focus, Paused, and the brief Locking hand-off.
         if (_activeKind is not { } kind) return;
         if (_activity.Count > 0 && _activity[^1].Kind != kind && _activity[^1].Duration < TimeSpan.FromSeconds(1)) _activity.RemoveAt(_activity.Count - 1);
         if (_activity.Count == 0 || _activity[^1].Kind != kind) _activity.Add(new ActivityEntry(kind, now, TimeSpan.Zero));

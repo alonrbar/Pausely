@@ -115,7 +115,7 @@ Use the settings UI to change **StartWithWindows**, because saving also updates 
 - **Multiple launches:** only one regular instance runs per Windows session.
 - **Long absences:** no queue of missed breaks and no immediate lock when you return.
 
-The **this session** panel shows total focus time (counting down only: not paused, locked, or away) and total break time. Hover it for the list of focus and break entries with their start times; the ↺ button resets the totals. Totals start empty every launch. Pausely doesn't unlock Windows automatically, prevent sleep, or wake the laptop. The reminder uses the primary display's usable area above the taskbar. Timing uses UTC deadlines (so time-zone/DST changes have no effect); manually changing the system clock can affect an active countdown.
+The **this session** panel shows total focus time (running or paused) and total break time (breaks plus any time locked or away). Hover it for the list of focus and break entries with their start times; the ↺ button resets the totals. Totals start empty every launch. Pausely doesn't unlock Windows automatically, prevent sleep, or wake the laptop. The reminder uses the primary display's usable area above the taskbar. Timing uses UTC deadlines (so time-zone/DST changes have no effect); manually changing the system clock can affect an active countdown.
 
 ## Verify and develop
 

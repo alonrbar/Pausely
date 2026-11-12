@@ -184,19 +184,25 @@ var tests = new (string Name, Action Test)[]
         timer.SetRemaining(TimeSpan.FromMinutes(2)); True(timer.IntervalId != id); id = timer.IntervalId;
         timer.TakeBreak(); timer.SetAway(true); True(timer.IntervalId != id);
     }),
-    ("Activity starts empty and counts only active focus", () =>
+    ("Activity counts paused as focus and away as break", () =>
     {
         var (timer, clock) = Create(); Equal(0, timer.Activity.Count); Equal(TimeSpan.Zero, timer.TotalFocus);
         timer.Start(); clock.Advance(600); Equal(600d, timer.TotalFocus.TotalSeconds);
         timer.PauseOrResume(); clock.Advance(300); timer.PauseOrResume(); clock.Advance(100);
         timer.SetAway(true); clock.Advance(60); timer.SetAway(false); clock.Advance(50); timer.Tick();
-        Equal(750d, timer.TotalFocus.TotalSeconds); Equal(1, timer.Activity.Count);
+        Equal(1050d, timer.TotalFocus.TotalSeconds); Equal(60d, timer.TotalBreak.TotalSeconds);
+        Equal("Focus,Break,Focus", string.Join(",", timer.Activity.Select(entry => entry.Kind)));
+    }),
+    ("Stopped timer tracks nothing, even when away", () =>
+    {
+        var (timer, clock) = Create(); timer.SetAway(true); clock.Advance(60); timer.SetAway(false); clock.Advance(60);
+        Equal(0, timer.Activity.Count);
     }),
     ("Activity alternates focus and break entries", () =>
     {
         var (timer, clock) = Create(); timer.Start(); clock.Advance(1500); timer.Tick();
         clock.Advance(2); timer.SetAway(true); clock.Advance(300); timer.Tick(); clock.Advance(10); timer.SetAway(false); clock.Advance(20); timer.Tick();
-        Equal(1520d, timer.TotalFocus.TotalSeconds); Equal(300d, timer.TotalBreak.TotalSeconds);
+        Equal(1522d, timer.TotalFocus.TotalSeconds); Equal(310d, timer.TotalBreak.TotalSeconds);
         var kinds = timer.Activity.Select(entry => entry.Kind).ToArray();
         Equal("Focus,Break,Focus", string.Join(",", kinds));
         Equal(clock.GetUtcNow().AddSeconds(-20), timer.Activity[^1].Start);
